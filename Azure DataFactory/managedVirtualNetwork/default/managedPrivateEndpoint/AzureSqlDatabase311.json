@@ -1,0 +1,10 @@
+{
+	"name": "AzureSqlDatabase311",
+	"properties": {
+		"privateLinkResourceId": "/subscriptions/fcab7415-09ab-46aa-bbb2-9443b7b17b81/resourceGroups/Data-Engineering/providers/Microsoft.Sql/servers/sampleazureserver",
+		"groupId": "sqlServer",
+		"fqdns": [
+			"sampleazureserver.database.windows.net"
+		]
+	}
+}

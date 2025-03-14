@@ -1,0 +1,9 @@
+{
+	"name": "sampleazureanalytics",
+	"location": "centralindia",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "501bf00f-821a-4944-b098-5e92b02b5151",
+		"tenantId": "2800c0a0-70e9-49be-8733-faeaa6aced99"
+	}
+}

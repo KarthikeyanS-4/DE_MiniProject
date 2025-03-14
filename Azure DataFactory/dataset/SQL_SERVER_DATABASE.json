@@ -1,0 +1,24 @@
+{
+	"name": "SQL_SERVER_DATABASE",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "local_to_cloud",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"table": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "SqlServerTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "raw",
+			"table": {
+				"value": "@dataset().table",
+				"type": "Expression"
+			}
+		}
+	}
+}

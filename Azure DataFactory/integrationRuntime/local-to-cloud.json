@@ -1,0 +1,6 @@
+{
+	"name": "local-to-cloud",
+	"properties": {
+		"type": "SelfHosted"
+	}
+}
