@@ -1,0 +1,24 @@
+{
+	"name": "snowflake_v2",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "snowflake_miniproject",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"table_name": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"type": "SnowflakeV2Table",
+		"schema": [],
+		"typeProperties": {
+			"schema": "RAW",
+			"table": {
+				"value": "@dataset().table_name",
+				"type": "Expression"
+			}
+		}
+	}
+}

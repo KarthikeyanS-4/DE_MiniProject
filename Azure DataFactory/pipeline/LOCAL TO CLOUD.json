@@ -1,0 +1,90 @@
+{
+	"name": "LOCAL TO CLOUD",
+	"properties": {
+		"activities": [
+			{
+				"name": "loop through table",
+				"type": "ForEach",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@variables('table_name')",
+						"type": "Expression"
+					},
+					"activities": [
+						{
+							"name": "Local To Snowflake",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "SqlServerSource",
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
+								},
+								"sink": {
+									"type": "SnowflakeV2Sink",
+									"importSettings": {
+										"type": "SnowflakeImportCopyCommand"
+									}
+								},
+								"enableStaging": true,
+								"stagingSettings": {
+									"linkedServiceName": {
+										"referenceName": "staging_tables",
+										"type": "LinkedServiceReference"
+									},
+									"path": "data-engineering-miniproject"
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "SQL_SERVER_DATABASE",
+									"type": "DatasetReference",
+									"parameters": {
+										"table": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "snowflake_v2",
+									"type": "DatasetReference",
+									"parameters": {
+										"table_name": {
+											"value": "@item()",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"variables": {
+			"table_name": {
+				"type": "Array",
+				"defaultValue": [
+					"OL_CUSTOMERS",
+					"OL_PRODUCTS",
+					"OL_TRANSACTIONS"
+				]
+			}
+		},
+		"annotations": []
+	}
+}
