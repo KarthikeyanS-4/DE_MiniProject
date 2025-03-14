@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: raw_data
+    description: "Source data from Snowflake using a connector"
+    database: MINI_PROJECT_ONLINE_LEARNING
+    schema: RAW
+    tables:
+      - name: ol_customers
+      - name: ol_products
+      - name: ol_transactions
+      - name: ol_region

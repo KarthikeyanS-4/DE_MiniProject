@@ -1,0 +1,75 @@
+-- WITH CUSTOMER_PRODUCT_COUNTS AS (
+--     SELECT 
+--         CUSTOMER_ID,
+--         CUSTOMER_NAME,
+--         COUNT(DISTINCT PRODUCT_FAMILY) AS DISTINCT_PRODUCT_FAMILIES,
+--         COUNT(DISTINCT PRODUCT_SUB_FAMILY) AS DISTINCT_PRODUCT_SUB_FAMILIES
+--     FROM {{ref("int_tables_combined")}}
+--     WHERE PAYMENT_MONTH BETWEEN '2018-01-01' AND '2020-06-01'
+--     GROUP BY CUSTOMER_ID, CUSTOMER_NAME
+-- ),
+-- CUSTOMER_PRODUCT_HISTORY AS (
+--     SELECT 
+--         CUSTOMER_ID,
+--         CUSTOMER_NAME,
+--         PRODUCT_ID,
+--         PRODUCT_FAMILY,
+--         PRODUCT_SUB_FAMILY,
+--         MIN(PAYMENT_MONTH) AS FIRST_PURCHASE_DATE,
+--         MAX(PAYMENT_MONTH) AS LAST_PURCHASE_DATE,
+--         COUNT(*) AS PURCHASE_COUNT
+--     FROM MINI_PROJECT_ONLINE_LEARNING.INTERMEDIATE.INT_TABLES_COMBINED
+--     WHERE PAYMENT_MONTH BETWEEN '2018-01-01' AND '2020-06-01'
+--     GROUP BY CUSTOMER_ID, CUSTOMER_NAME, PRODUCT_ID, PRODUCT_FAMILY, PRODUCT_SUB_FAMILY
+-- ),
+-- CHURNED_CUSTOMERS AS (
+--     SELECT
+--         CUSTOMER_ID,
+--         CUSTOMER_NAME,
+--         PRODUCT_ID,
+--         PRODUCT_FAMILY,
+--         PRODUCT_SUB_FAMILY
+--     FROM CUSTOMER_PRODUCT_HISTORY
+--     WHERE LAST_PURCHASE_DATE < '2020-05-01' -- 6 months before the end date
+-- )
+-- SELECT 
+--     cpc.CUSTOMER_ID,
+--     cpc.CUSTOMER_NAME,
+--     cpc.DISTINCT_PRODUCT_FAMILIES,
+--     cpc.DISTINCT_PRODUCT_SUB_FAMILIES,
+--     cc.PRODUCT_ID AS CHURNED_PRODUCT_ID,
+--     cc.PRODUCT_FAMILY AS CHURNED_PRODUCT_FAMILY,
+--     cc.PRODUCT_SUB_FAMILY AS CHURNED_PRODUCT_SUB_FAMILY
+-- FROM CUSTOMER_PRODUCT_COUNTS cpc
+-- LEFT JOIN CHURNED_CUSTOMERS cc
+--     ON cpc.CUSTOMER_ID = cc.CUSTOMER_ID
+-- -- ORDER BY cpc.DISTINCT_PRODUCT_FAMILIES DESC, cpc.DISTINCT_PRODUCT_SUB_FAMILIES DESC, cc.PRODUCT_FAMILY, cc.PRODUCT_SUB_FAMILY;
+-- ORDER BY 2
+
+WITH product_counts AS (
+    SELECT
+        CUSTOMER_ID,
+        COUNT(DISTINCT PRODUCT_ID) AS total_products,
+        COUNT(DISTINCT CASE WHEN PAYMENT_MONTH < DATEADD(month, -3, '2020-06-01') THEN PRODUCT_ID END) AS churned_products,
+        SUM(quantity) AS total_quantity
+    FROM
+        {{ ref('int_tables_combined') }}
+    GROUP BY
+        CUSTOMER_ID
+)
+SELECT
+    DISTINCT CUSTOMER_ID,
+    customer_name,
+    total_products,
+    churned_products,
+    total_quantity,
+    (total_products - churned_products) AS current_cross_sell,
+    DENSE_RANK() OVER (ORDER BY (total_products - churned_products) DESC) AS customer_rank
+FROM
+    product_counts
+    INNER JOIN
+    {{ ref('int_tables_combined') }}
+    USING (CUSTOMER_ID)
+ORDER BY
+    total_quantity DESC, current_cross_sell DESC
+ 
